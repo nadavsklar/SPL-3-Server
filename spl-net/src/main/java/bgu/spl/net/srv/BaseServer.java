@@ -2,7 +2,7 @@ package bgu.spl.net.srv;
 
 import bgu.spl.net.api.MessageEncoderDecoder;
 import bgu.spl.net.api.MessagingProtocol;
-import bgu.spl.net.api.bidi.Connections;
+import bgu.spl.net.api.bidi.BidiMessagingProtocol;
 import bgu.spl.net.api.bidi.ConnectionsImpl;
 
 import java.io.IOException;
@@ -13,21 +13,23 @@ import java.util.function.Supplier;
 public abstract class BaseServer<T> implements Server<T> {
 
     private final int port;
-    private final Supplier<MessagingProtocol<T>> protocolFactory;
+    private final Supplier<BidiMessagingProtocol<T>> protocolFactory;
     private final Supplier<MessageEncoderDecoder<T>> encdecFactory;
     private ServerSocket sock;
-    private Connections<T> connections;
+    private ConnectionsImpl<T> connections;
+    private int currentClientId;
 
     public BaseServer(
             int port,
-            Supplier<MessagingProtocol<T>> protocolFactory,
+            Supplier<BidiMessagingProtocol<T>> protocolFactory,
             Supplier<MessageEncoderDecoder<T>> encdecFactory) {
 
         this.port = port;
         this.protocolFactory = protocolFactory;
         this.encdecFactory = encdecFactory;
 		this.sock = null;
-		this.connections = new ConnectionsImpl(encdecFactory, protocolFactory);
+		this.connections = new ConnectionsImpl();
+		this.currentClientId = 0;
     }
 
     @Override
@@ -42,10 +44,16 @@ public abstract class BaseServer<T> implements Server<T> {
 
                 Socket clientSock = serverSock.accept();
 
+                BidiMessagingProtocol protocol = protocolFactory.get();
+                protocol.start(currentClientId, connections);
+
                 BlockingConnectionHandler<T> handler = new BlockingConnectionHandler<>(
                         clientSock,
                         encdecFactory.get(),
-                        protocolFactory.get());
+                        protocol);
+
+                connections.addClientConnection(currentClientId, handler);
+                currentClientId++;
 
                 execute(handler);
             }

@@ -3,10 +3,13 @@ package bgu.spl.net.api.bidi;
 public class BidiMessagingProtocolImpl<T> implements BidiMessagingProtocol<T> {
 
     private boolean shouldTerminate = false;
+    private Connections connections = null;
+    private int connectionId = -1;
 
     @Override
     public void start(int connectionId, Connections connections) {
-        ((ConnectionsImpl)connections).addClientConnection(connectionId);
+        this.connections = connections;
+        this.connectionId = connectionId;
     }
 
     @Override

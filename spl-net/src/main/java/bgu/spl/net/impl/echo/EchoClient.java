@@ -1,5 +1,7 @@
 package bgu.spl.net.impl.echo;
 
+import bgu.spl.net.srv.Server;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
