@@ -2,12 +2,15 @@ package bgu.spl.net.srv;
 
 import bgu.spl.net.api.MessageEncoderDecoder;
 import bgu.spl.net.api.MessagingProtocol;
+import bgu.spl.net.srv.bidi.ConnectionHandler;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.Closeable;
 import java.io.IOException;
 import java.net.Socket;
 
-public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler<T> {
+public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler<T>, Closeable {
 
     private final MessagingProtocol<T> protocol;
     private final MessageEncoderDecoder<T> encdec;
@@ -51,5 +54,18 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
     public void close() throws IOException {
         connected = false;
         sock.close();
+    }
+
+    @Override
+    public void send(T msg) {
+        byte[] bytes = encdec.encode(msg);
+        try {
+            out = new BufferedOutputStream(sock.getOutputStream());
+            out.write(bytes);
+            out.flush();
+        }
+        catch (IOException e){
+            e.printStackTrace();
+        }
     }
 }
