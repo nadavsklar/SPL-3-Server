@@ -6,8 +6,6 @@ public class ConnectionsImpl<T> implements Connections<T>{
 
     private ConcurrentHashMap<Integer, ConnectionHandler<T>> connectionsPerClient;
 
-
-
     public ConnectionsImpl(){
         this.connectionsPerClient = new ConcurrentHashMap<>();
     }
@@ -18,7 +16,6 @@ public class ConnectionsImpl<T> implements Connections<T>{
         }
         else {
             connectionsPerClient.put(connectionId, handler);
-
         }
     }
 
