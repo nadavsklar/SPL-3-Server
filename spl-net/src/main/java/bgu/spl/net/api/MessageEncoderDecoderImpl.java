@@ -1,30 +1,83 @@
 package bgu.spl.net.api;
 
-import java.util.HashMap;
+import bgu.spl.net.api.Messages.Register;
+
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
-public class MessageEncoderDecoderImpl<Short> implements MessageEncoderDecoder<Short> {
+public class MessageEncoderDecoderImpl<Message> implements MessageEncoderDecoder<Message> {
 
     private List<Byte> bytes;
     private String encoding;
     private int bytesReaded;
-    private HashMap<Integer, String> symbolTable;
+    private short typeOfMessage;
+    private Message currentMessage;
 
     public MessageEncoderDecoderImpl(){
         bytes = new LinkedList<>();
         encoding = "utf-8";
         bytesReaded = 0;
+        typeOfMessage = -1;
+        currentMessage = null;
     }
 
     @Override
-    public Short decodeNextByte(byte nextByte) {
-        bytesReaded++;
-        bytes.add(nextByte);
-        if(bytesReaded == 2) {
-            short messageOpcode = bytesToShort((Byte[]) bytes.toArray());
+    public Message decodeNextByte(byte nextByte) {
+        if (typeOfMessage == -1) {
+            bytesReaded++;
+            bytes.add(nextByte);
+            if (bytesReaded == 2) {
+                typeOfMessage = bytesToShort((Byte[]) bytes.toArray());
+                switch(typeOfMessage){
+                    case 1:
+                        Register Message = new Register();
+                }
+            }
         }
+        else {
+            switch (typeOfMessage){
+                case 1:
+                    //Register
+                    break;
+                case 2:
+                    //Login
+                    break;
+                case 3:
+                    //Logout
+                    break;
+                case 4:
+                    //Follow
+                    break;
+                case 5:
+                    //Post
+                    break;
+                case 6:
+                    //PM
+                    break;
+                case 7:
+                    //User
+                    break;
+                case 8:
+                    //Stat
+                    break;
+                case 9:
+                    //Notification
+                    break;
+                case 10:
+                    //ACK
+                    break;
+                case 11:
+                    //Error
+                    break;
+                default:
+                    //Execption
+                    break;
+            }
+        }
+        return null;
+    }
+
+    private Message registerRead(byte nextByte){
         return null;
     }
 
@@ -35,7 +88,7 @@ public class MessageEncoderDecoderImpl<Short> implements MessageEncoderDecoder<S
     }
 
     @Override
-    public byte[] encode(Short message) {
+    public byte[] encode(Message message) {
         return new byte[0];
     }
 }
