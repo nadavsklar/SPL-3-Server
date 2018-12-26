@@ -1,5 +1,8 @@
 package bgu.spl.net.impl.echo;
 
+import bgu.spl.net.api.MessageEncoderDecoderImpl;
+import bgu.spl.net.api.Messages.Message;
+import bgu.spl.net.api.Messages.Register;
 import bgu.spl.net.srv.Server;
 
 import java.io.BufferedReader;
@@ -13,6 +16,40 @@ public class EchoClient {
 
     public static void main(String[] args) throws IOException {
         //Trying to commit
+        MessageEncoderDecoderImpl x = new MessageEncoderDecoderImpl();
+        String userName = "Tomer";
+        String password = "1234";
+        byte[] bytes;
+        byte[] userNameBytes = userName.getBytes("utf-8");
+        byte[] passwordBytes = password.getBytes("utf-8");
+        bytes = new byte[userNameBytes.length + passwordBytes.length + 4];
+        bytes[0] = 0;
+        bytes[1] = 1;
+        int index = 2;
+        for(int i = 0; i < userNameBytes.length; i++) {
+            bytes[index] = userNameBytes[i];
+            index++;
+        }
+        bytes[index] = '\0';
+        index++;
+        for(int i = 0; i < passwordBytes.length; i++) {
+            bytes[index] = passwordBytes[i];
+            index++;
+        }
+        bytes[index] = '\0';
+        for(int i = 0; i < bytes.length; i++)
+        {
+            Message m = x.decodeNextByte(bytes[i]);
+            if(m!= null && m instanceof Register){
+                Register r = (Register) m;
+                if(r.getUserName() != null & r.getPassword() != null) {
+                    System.out.println(r.getUserName());
+                    System.out.println(r.getPassword());
+                }
+            }
+        }
+
+
         if (args.length == 0) {
             args = new String[]{"localhost", "hello"};
         }
