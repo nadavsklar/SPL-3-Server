@@ -3,6 +3,7 @@ package bgu.spl.net.api;
 import bgu.spl.net.api.Messages.*;
 import bgu.spl.net.api.Messages.Error;
 
+import java.lang.reflect.Array;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -81,10 +82,9 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
                     loginRead(nextByte, (Login)currentMessage);
                     break;
                 case 3:
-                    //Logout
                     break;
                 case 4:
-                    //Follow
+                    followRead(nextByte, (Follow)currentMessage);
                     break;
                 case 5:
                     //Post
@@ -146,7 +146,7 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
         return result;
     }
 
-    private Message loginRead(byte nextByte, Login loginMessage) {
+    private Login loginRead(byte nextByte, Login loginMessage) {
         Login result = null;
         Register registerMessage = new Register();
         registerMessage.setUserName(loginMessage.getUserName());
@@ -160,6 +160,37 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
             result.setPassword(newRegisterMessage.getPassword());
         }
         return result;
+    }
+
+    private Follow followRead(byte nextByte, Follow message) {
+        if (message.getFollowOrUnfollow() == -1)
+            message.setFollowOrUnfollow(nextByte);
+        else {
+            if (message.getNumOfUsers() == 0) {
+                if (bytes.size() == 2) {
+                    byte[] tmpBytes = new byte[bytes.size()];
+                    for (int i = 0; i < bytes.size(); i++)
+                        tmpBytes[i] = bytes.get(i).byteValue();
+                    bytes.clear();
+                    message.setNumOfUsers(bytesToShort(tmpBytes));
+                }
+                else
+                    bytes.add(nextByte);
+            }
+            else {
+                if (nextByte == '\0') {
+                    byte[] tmpBytes = new byte[bytes.size()];
+                    for (int i = 0; i < bytes.size(); i++)
+                        tmpBytes[i] = bytes.get(i).byteValue();
+                    bytes.clear();
+                    message.addUser(new String(tmpBytes));
+                }
+                else {
+                    bytes.add(nextByte);
+                }
+            }
+        }
+        return message;
     }
 
 
