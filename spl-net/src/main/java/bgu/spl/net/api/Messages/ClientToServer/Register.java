@@ -5,4 +5,7 @@ public class Register extends RegisterOrLogin {
     public Register(){
         super((short) 1);
     }
+
+    @Override
+    public String messageString() { return "Register"; }
 }

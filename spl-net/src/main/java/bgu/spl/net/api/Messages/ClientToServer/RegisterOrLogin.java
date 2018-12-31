@@ -2,7 +2,7 @@ package bgu.spl.net.api.Messages.ClientToServer;
 
 import bgu.spl.net.api.Messages.Message;
 
-public class RegisterOrLogin extends Message {
+public abstract class RegisterOrLogin extends Message {
 
     private String userName;
     private String password;

@@ -27,4 +27,7 @@ public class PM extends Message {
     public void setContent(String content) {
         this.content = content;
     }
+
+    @Override
+    public String messageString() { return "PM"; }
 }

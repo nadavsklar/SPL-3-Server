@@ -1,16 +1,17 @@
 package bgu.spl.net.api.bidi;
+import bgu.spl.net.api.Messages.Message;
 import bgu.spl.net.srv.bidi.ConnectionHandler;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ConnectionsImpl<T> implements Connections<T>{
+public class ConnectionsImpl implements Connections<Message>{
 
-    private ConcurrentHashMap<Integer, ConnectionHandler<T>> connectionsPerClient;
+    private ConcurrentHashMap<Integer, ConnectionHandler<Message>> connectionsPerClient;
 
     public ConnectionsImpl(){
         this.connectionsPerClient = new ConcurrentHashMap<>();
     }
 
-    public void addClientConnection(int connectionId, ConnectionHandler<T> handler){
+    public void addClientConnection(int connectionId, ConnectionHandler<Message> handler){
         if(connectionsPerClient.containsKey(connectionId)){
             //Return Error
         }
@@ -20,7 +21,7 @@ public class ConnectionsImpl<T> implements Connections<T>{
     }
 
     @Override
-    public boolean send(int connectionId, T msg) {
+    public boolean send(int connectionId, Message msg) {
         if (!connectionsPerClient.containsKey(connectionId))
             return false;
         connectionsPerClient.get(connectionId).send(msg);
@@ -28,7 +29,7 @@ public class ConnectionsImpl<T> implements Connections<T>{
     }
 
     @Override
-    public void broadcast(T msg) {
+    public void broadcast(Message msg) {
         for (Integer ConnectionId: connectionsPerClient.keySet())
             connectionsPerClient.get(ConnectionId).send(msg);
     }
@@ -37,5 +38,6 @@ public class ConnectionsImpl<T> implements Connections<T>{
     public void disconnect(int connectionId) {
         connectionsPerClient.remove(connectionId);
     }
+
 }
 
