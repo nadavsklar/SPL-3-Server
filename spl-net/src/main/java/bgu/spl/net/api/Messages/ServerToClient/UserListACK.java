@@ -1,27 +1,17 @@
-package bgu.spl.net.api.Messages;
+package bgu.spl.net.api.Messages.ServerToClient;
 
 import java.util.LinkedList;
 import java.util.List;
 
-public class Follow extends Message {
+public class UserListACK extends ACK {
 
-    private byte followOrUnfollow; // 0 - follow, 1 - unfollow
     private short numOfUsers;
     private List<String> userNameList;
 
-    public Follow() {
-        super((short) 4,0);
+    public UserListACK(){
+        super((short)7);
         numOfUsers = 0;
         userNameList = new LinkedList<>();
-        followOrUnfollow = -1;
-    }
-
-    public byte getFollowOrUnfollow() {
-        return followOrUnfollow;
-    }
-
-    public void setFollowOrUnfollow(byte followOrUnfollow) {
-        this.followOrUnfollow = followOrUnfollow;
     }
 
     public short getNumOfUsers() {
@@ -36,7 +26,11 @@ public class Follow extends Message {
         return userNameList;
     }
 
-    public void addUser(String userName) {
+    public void addUserName(String userName) {
         this.userNameList.add(userName);
     }
+
+    @Override
+    public String messageString() {return "UserListACK";}
+
 }

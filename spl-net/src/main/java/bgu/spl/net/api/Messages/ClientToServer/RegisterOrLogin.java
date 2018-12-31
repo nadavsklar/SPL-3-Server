@@ -1,12 +1,14 @@
-package bgu.spl.net.api.Messages;
+package bgu.spl.net.api.Messages.ClientToServer;
 
-public class Register extends Message {
+import bgu.spl.net.api.Messages.Message;
+
+public class RegisterOrLogin extends Message {
 
     private String userName;
     private String password;
 
-    public Register() {
-        super((short) 1,0);
+    public RegisterOrLogin(short opcode) {
+        super(opcode,0);
         userName = null;
         password = null;
     }

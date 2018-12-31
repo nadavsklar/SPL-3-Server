@@ -1,23 +1,23 @@
 package bgu.spl.net.api;
 
 import bgu.spl.net.api.Messages.*;
-import bgu.spl.net.api.Messages.Error;
-
-import java.lang.reflect.Array;
+import bgu.spl.net.api.Messages.ClientToServer.*;
+import bgu.spl.net.api.Messages.ServerToClient.*;
+import bgu.spl.net.api.Messages.ServerToClient.Error;
+import java.io.UnsupportedEncodingException;
 import java.util.LinkedList;
 import java.util.List;
 
 public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message> {
 
     private List<Byte> bytes;
-    private String encoding;
+    private final String encoding = "utf-8";
     private int bytesReaded;
     private short typeOfMessage;
     private Message currentMessage;
 
     public MessageEncoderDecoderImpl(){
         bytes = new LinkedList<>();
-        encoding = "utf-8";
         bytesReaded = 0;
         typeOfMessage = -1;
         currentMessage = null;
@@ -59,56 +59,32 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
                     case 8:
                         currentMessage = new Stat();
                         break;
-                    case 9:
-                        currentMessage = new Notification();
-                        break;
-                    case 10:
-                        currentMessage = new ACK();
-                        break;
-                    case 11:
-                        currentMessage = new Error();
-                        break;
                     default:
-                        //Error
+                        break;
                 }
             }
         }
         else {
             switch (typeOfMessage){
                 case 1:
-                    registerRead(nextByte, (Register)currentMessage);
+                    registerOrLoginRead(nextByte, (Register)currentMessage);
                     break;
                 case 2:
-                    loginRead(nextByte, (Login)currentMessage);
-                    break;
-                case 3:
+                    registerOrLoginRead(nextByte, (Login)currentMessage);
                     break;
                 case 4:
                     followRead(nextByte, (Follow)currentMessage);
                     break;
                 case 5:
-                    //Post
+                    postRead(nextByte, (Post)currentMessage);
                     break;
                 case 6:
-                    //PM
-                    break;
-                case 7:
-                    //User
+                    pmRead(nextByte, (PM)currentMessage);
                     break;
                 case 8:
-                    //Stat
-                    break;
-                case 9:
-                    //Notification
-                    break;
-                case 10:
-                    //ACK
-                    break;
-                case 11:
-                    //Error
+                    statRead(nextByte, (Stat)currentMessage);
                     break;
                 default:
-                    //Execption
                     break;
             }
         }
@@ -116,62 +92,36 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
     }
 
 
-    private Register registerRead(byte nextByte, Register registerMessage){
-        Register result = null;
-        if(registerMessage.getUserName() == null) {
+    private void registerOrLoginRead(byte nextByte, RegisterOrLogin message){
+        if(message.getUserName() == null) {
             if(nextByte == '\0') {
-                byte[] tmpBytes = new byte[bytes.size()];
-                for (int i = 0; i < bytes.size(); i++)
-                    tmpBytes[i] = bytes.get(i).byteValue();
-                bytes.clear();
-                registerMessage.setUserName(new String(tmpBytes));
+                byte[] tmpBytes = getBytesArray();
+                message.setUserName(new String(tmpBytes));
             }
             else
                 bytes.add(nextByte);
         }
         else{
-            if(registerMessage.getPassword() == null){
+            if(message.getPassword() == null){
                 if(nextByte == '\0'){
-                    byte[] tmpBytes = new byte[bytes.size()];
-                    for (int i = 0; i < bytes.size(); i++)
-                        tmpBytes[i] = bytes.get(i).byteValue();
-                    bytes.clear();
-                    registerMessage.setPassword(new String(tmpBytes));
-                    result = registerMessage;
+                    byte[] tmpBytes = getBytesArray();
+                    message.setPassword(new String(tmpBytes));
+                    message.setReaded();
                 }
                 else
                     bytes.add(nextByte);
             }
         }
-        return result;
     }
 
-    private Login loginRead(byte nextByte, Login loginMessage) {
-        Login result = null;
-        Register registerMessage = new Register();
-        registerMessage.setUserName(loginMessage.getUserName());
-        registerMessage.setPassword(loginMessage.getPassword());
 
-        Register newRegisterMessage = registerRead(nextByte, registerMessage);
-
-        if(newRegisterMessage != null){
-            result = new Login();
-            result.setUserName(newRegisterMessage.getUserName());
-            result.setPassword(newRegisterMessage.getPassword());
-        }
-        return result;
-    }
-
-    private Follow followRead(byte nextByte, Follow message) {
+    private void followRead(byte nextByte, Follow message) {
         if (message.getFollowOrUnfollow() == -1)
             message.setFollowOrUnfollow(nextByte);
         else {
             if (message.getNumOfUsers() == 0) {
                 if (bytes.size() == 2) {
-                    byte[] tmpBytes = new byte[bytes.size()];
-                    for (int i = 0; i < bytes.size(); i++)
-                        tmpBytes[i] = bytes.get(i).byteValue();
-                    bytes.clear();
+                    byte[] tmpBytes = getBytesArray();
                     message.setNumOfUsers(bytesToShort(tmpBytes));
                 }
                 else
@@ -179,10 +129,7 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
             }
             else {
                 if (nextByte == '\0') {
-                    byte[] tmpBytes = new byte[bytes.size()];
-                    for (int i = 0; i < bytes.size(); i++)
-                        tmpBytes[i] = bytes.get(i).byteValue();
-                    bytes.clear();
+                    byte[] tmpBytes = getBytesArray();
                     message.addUser(new String(tmpBytes));
                 }
                 else {
@@ -190,7 +137,44 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
                 }
             }
         }
-        return message;
+    }
+
+    private void postRead(byte nextByte, Post message){
+        if(nextByte != '\0') {
+            bytes.add(nextByte);
+        }
+        else {
+            byte[] tmpBytes = getBytesArray();
+            message.setContent(new String(tmpBytes));
+        }
+    }
+
+    private void pmRead(byte nextByte, PM message){
+        if(message.getUserName() == null) {
+            if (nextByte != '\0')
+                bytes.add(nextByte);
+            else {
+                byte[] tmpBytes = getBytesArray();
+                message.setUserName(new String(tmpBytes));
+            }
+        }
+        else {
+            if (nextByte != '\0')
+                bytes.add(nextByte);
+            else {
+                byte[] tmpBytes = getBytesArray();
+                message.setContent(new String(tmpBytes));
+            }
+        }
+    }
+
+    private void statRead(byte nextByte, Stat message){
+        if(nextByte != '\0')
+            bytes.add(nextByte);
+        else {
+            byte[] tmpBytes = getBytesArray();
+            message.setUserName(new String(tmpBytes));
+        }
     }
 
 
@@ -200,9 +184,176 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
         return result;
     }
 
+    public byte[] shortToBytes(short num)
+    {
+        byte[] bytesArr = new byte[2];
+        bytesArr[0] = (byte)((num >> 8) & 0xFF);
+        bytesArr[1] = (byte)(num & 0xFF);
+        return bytesArr;
+    }
+
     @Override
     public byte[] encode(Message message) {
-        return new byte[0];
+        String typeOfMessage = message.messageString();
+        switch (typeOfMessage){
+            case "ACK":
+                return encodeACKOrError((ACK)message);
+            case "Error":
+                return encodeACKOrError((Error)message);
+            case "FollowACK":
+                return encodeFollowACK((FollowACK)message);
+            case "Notification":
+                return encodeNotification((Notification)message);
+            case "StatACK":
+                return encodeStatACK((StatACK)message);
+            case "UserListACK":
+                return encodeUserListACK((UserListACK)message);
+            default:
+                return null;
+        }
+    }
+
+    private byte[] encodeACKOrError(ACKOrError message) {
+        byte[] tmpBytes1 = shortToBytes(message.getOpcode());
+        byte[] tmpBytes2 = shortToBytes(message.getTypeOfMessage());
+        byte[] resultBytes = new byte[tmpBytes1.length + tmpBytes2.length];
+        int index = 0;
+        for(int i = 0; i < tmpBytes1.length; i++){
+            resultBytes[index] = tmpBytes1[i];
+            index++;
+        }
+        for(int i = 0; i < tmpBytes2.length; i++){
+            resultBytes[index] = tmpBytes2[i];
+            index++;
+        }
+        return resultBytes;
+    }
+
+    private byte[] encodeFollowACK(FollowACK message) {
+        byte[] firstPart = encodeACKOrError(message);
+        byte[] numOfUsers = shortToBytes(message.getNumOfUsers());
+        byte[] userNameList = null;
+        String userNameListString = "";
+        int index = 0;
+        //Init
+        List<String> users = message.getUserNameList();
+        for (int i = 0; i < users.size(); i++)
+            userNameListString = users.get(i) + '\0';
+        try {
+            userNameList = userNameListString.getBytes(encoding);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        byte[] result = new byte[firstPart.length + numOfUsers.length + userNameList.length];
+        for (int i = 0; i < firstPart.length; i++) {
+            result[index] = firstPart[i];
+            index++;
+        }
+        for (int i = 0; i < numOfUsers.length; i++) {
+            result[index] = numOfUsers[i];
+            index++;
+        }
+        for (int i = 0; i < userNameList.length; i++) {
+            result[index] = userNameList[i];
+            index++;
+        }
+        return result;
+    }
+
+    private byte[] encodeNotification(Notification message) {
+        byte[] opcode = shortToBytes(message.getOpcode());
+        byte[] postingUser = null, content = null;
+        try {
+           postingUser = message.getPostingUser().getBytes(encoding);
+           content = message.getContetnt().getBytes(encoding);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        byte[] result = new byte[opcode.length + postingUser.length + content.length + 3];
+        int index = 0;
+        for (int i = 0; i < opcode.length; i++) {
+            result[index] = opcode[i];
+            index++;
+        }
+        result[index] = (byte)message.getPublicOrPrivate();
+        index++;
+        for (int i = 0; i < postingUser.length; i++) {
+            result[index] = postingUser[i];
+            index++;
+        }
+        result[index] = '\0';
+        index++;
+        for (int i = 0; i < content.length; i++) {
+            result[index] = content[i];
+            index++;
+        }
+        result[index] = '\0';
+        return result;
+    }
+
+    private byte[] encodeStatACK(StatACK message) {
+        byte[] firstPart = encodeACKOrError(message);
+        byte[] numOfPosts = shortToBytes(message.getNumOfPosts());
+        byte[] numOfFollowers = shortToBytes(message.getNumOfFollowers());
+        byte[] numOfFollowing = shortToBytes(message.getNumOfFollowing());
+        byte[] result = new byte[firstPart.length + numOfPosts.length + numOfFollowers.length + numOfFollowing.length];
+        int index = 0;
+        int i;
+        for (i = 0; i < firstPart.length; i++) {
+            result[index] = firstPart[i];
+            index++;
+        }
+        for (i = 0; i < numOfPosts.length; i++) {
+            result[index] = numOfPosts[i];
+            index++;
+        }
+        for (i = 0; i < numOfFollowers.length; i++) {
+            result[index] = numOfFollowers[i];
+            index++;
+        }
+        for (i = 0; i < numOfFollowing.length; i++) {
+            result[index] = numOfFollowing[i];
+            index++;
+        }
+        return result;
+    }
+
+    private byte[] encodeUserListACK(UserListACK message) {
+        byte[] firstPart = encodeACKOrError(message);
+        byte[] numOfUsers = shortToBytes(message.getNumOfUsers());
+        byte[] userNameList = null;
+        String userNameListString = "";
+        List<String> users = message.getUserNameList();
+        for (int i = 0; i < users.size(); i++)
+            userNameListString = users.get(i) + '\0';
+        try {
+            userNameList = userNameListString.getBytes(encoding);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        byte[] result = new byte[firstPart.length + numOfUsers.length + userNameList.length];
+        int index = 0;
+        for (int i = 0; i < firstPart.length; i++) {
+            result[index] = firstPart[i];
+            index++;
+        }
+        for (int i = 0; i < numOfUsers.length; i++) {
+            result[index] = numOfUsers[i];
+            index++;
+        }
+        for (int i = 0; i < userNameList.length; i++) {
+            result[index] = userNameList[i];
+            index++;
+        }
+        return result;
+    }
+
+    private byte[] getBytesArray(){
+        byte[] tmpBytes = new byte[bytes.size()];
+        for (int i = 0; i < bytes.size(); i++)
+            tmpBytes[i] = bytes.get(i).byteValue();
+        bytes.clear();
+        return tmpBytes;
     }
 
 }

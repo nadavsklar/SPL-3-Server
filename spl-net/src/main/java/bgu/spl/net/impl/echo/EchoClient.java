@@ -2,8 +2,7 @@ package bgu.spl.net.impl.echo;
 
 import bgu.spl.net.api.MessageEncoderDecoderImpl;
 import bgu.spl.net.api.Messages.Message;
-import bgu.spl.net.api.Messages.Register;
-import bgu.spl.net.srv.Server;
+import bgu.spl.net.api.Messages.ClientToServer.Register;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
