@@ -68,6 +68,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
             ACK ackMessage = new ACK((short)3);
             Users.logout(connectionId, user);
             connections.send(connectionId, ackMessage);
+            connections.disconnect(connectionId);
             shouldTerminate = true;
         }
     }

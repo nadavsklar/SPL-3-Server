@@ -72,6 +72,9 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
                 case 2:
                     registerOrLoginRead(nextByte, (Login)currentMessage);
                     break;
+                case 3:
+                    logoutRead((Logout)currentMessage);
+                    break;
                 case 4:
                     followRead(nextByte, (Follow)currentMessage);
                     break;
@@ -80,6 +83,9 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
                     break;
                 case 6:
                     pmRead(nextByte, (PM)currentMessage);
+                    break;
+                case 7:
+                    userListRead((UserList)currentMessage);
                     break;
                 case 8:
                     statRead(nextByte, (Stat)currentMessage);
@@ -131,12 +137,21 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
                 if (nextByte == '\0') {
                     byte[] tmpBytes = getBytesArray();
                     message.addUser(new String(tmpBytes));
+                    message.setReaded();
                 }
                 else {
                     bytes.add(nextByte);
                 }
             }
         }
+    }
+
+    private void logoutRead(Logout message){
+        message.setReaded();
+    }
+
+    private void userListRead(UserList message){
+        message.setReaded();
     }
 
     private void postRead(byte nextByte, Post message){
@@ -146,6 +161,7 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
         else {
             byte[] tmpBytes = getBytesArray();
             message.setContent(new String(tmpBytes));
+            message.setReaded();
         }
     }
 
@@ -164,6 +180,7 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
             else {
                 byte[] tmpBytes = getBytesArray();
                 message.setContent(new String(tmpBytes));
+                message.setReaded();
             }
         }
     }
@@ -174,6 +191,7 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
         else {
             byte[] tmpBytes = getBytesArray();
             message.setUserName(new String(tmpBytes));
+            message.setReaded();
         }
     }
 

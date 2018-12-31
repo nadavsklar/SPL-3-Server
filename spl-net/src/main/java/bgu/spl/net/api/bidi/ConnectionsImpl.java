@@ -11,14 +11,6 @@ public class ConnectionsImpl implements Connections<Message>{
         this.connectionsPerClient = new ConcurrentHashMap<>();
     }
 
-    public void addClientConnection(int connectionId, ConnectionHandler<Message> handler){
-        if(connectionsPerClient.containsKey(connectionId)){
-            //Return Error
-        }
-        else {
-            connectionsPerClient.put(connectionId, handler);
-        }
-    }
 
     @Override
     public boolean send(int connectionId, Message msg) {
