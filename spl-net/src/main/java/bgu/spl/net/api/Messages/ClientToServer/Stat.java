@@ -18,4 +18,7 @@ public class Stat extends Message {
     public void setUserName(String userName) {
         this.userName = userName;
     }
+
+    @Override
+    public String messageString() { return "Stat"; }
 }

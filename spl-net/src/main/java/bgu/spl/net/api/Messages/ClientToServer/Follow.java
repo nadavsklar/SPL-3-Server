@@ -41,4 +41,7 @@ public class Follow extends Message {
     public void addUser(String userName) {
         this.userNameList.add(userName);
     }
+
+    @Override
+    public String messageString() { return "Follow"; }
 }

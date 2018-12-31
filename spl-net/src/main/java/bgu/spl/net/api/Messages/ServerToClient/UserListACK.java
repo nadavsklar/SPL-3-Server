@@ -26,6 +26,8 @@ public class UserListACK extends ACK {
         return userNameList;
     }
 
+    public void setUserNameList(List<String> userNameList) { this.userNameList = userNameList; }
+
     public void addUserName(String userName) {
         this.userNameList.add(userName);
     }

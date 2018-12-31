@@ -4,7 +4,7 @@ import bgu.spl.net.api.Messages.Message;
 
 public class Notification extends Message {
 
-    private char publicOrPrivate;
+    private char publicOrPrivate; // 1 - post, 0 - pm
     private String postingUser;
     private String contetnt;
 

@@ -18,4 +18,7 @@ public class Post extends Message {
     public void setContent(String content) {
         this.content = content;
     }
+
+    @Override
+    public String messageString() { return "Post"; }
 }
