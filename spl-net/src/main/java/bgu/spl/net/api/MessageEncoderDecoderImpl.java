@@ -94,7 +94,10 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
                     break;
             }
         }
-        return currentMessage;
+        if(currentMessage.isReaded())
+            return currentMessage;
+        else
+            return null;
     }
 
 
