@@ -26,6 +26,7 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
     @Override
     public Message decodeNextByte(byte nextByte) {
         if (typeOfMessage == -1) {
+            currentMessage = null;
             bytesReaded++;
             bytes.add(nextByte);
             if (bytesReaded == 2) {
@@ -94,8 +95,11 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
                     break;
             }
         }
-        if(currentMessage.isReaded())
+        if(currentMessage != null && currentMessage.isReaded()){
+            typeOfMessage = -1;
+            bytesReaded = 0;
             return currentMessage;
+        }
         else
             return null;
     }

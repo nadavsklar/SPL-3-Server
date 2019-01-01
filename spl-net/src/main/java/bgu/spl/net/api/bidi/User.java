@@ -7,6 +7,7 @@ import java.util.Vector;
 
 public class User {
 
+    private boolean isConnected;
     private String userName;
     private String passWord;
     private Vector<User> followers;
@@ -14,7 +15,8 @@ public class User {
     private Vector<Post> postMessagesAwaiting;
     private Vector<PM> pmMessagesAwaiting;
 
-    public User(String userName, String passWord) {
+    public User(boolean isConnected, String userName, String passWord) {
+        this.isConnected = isConnected;
         this.userName = userName;
         this.passWord = passWord;
         this.followers = new Vector<>();
@@ -23,21 +25,22 @@ public class User {
         this.pmMessagesAwaiting = new Vector<>();
     }
 
-    public String getUserName() {
-        return userName;
-    }
+    public boolean isConnected() { return isConnected; }
 
-    public String getPassWord() {
-        return passWord;
-    }
 
-    public Vector<User> getFollowers() {
-        return followers;
-    }
+    public void setConnected(boolean connected) { isConnected = connected; }
 
-    public Vector<User> getFollowing() {
-        return following;
-    }
+    public String getUserName() { return userName; }
+
+    public void setUserName(String userName) { this.userName = userName; }
+
+    public String getPassWord() { return passWord; }
+
+    public void setPassWord(String passWord) { this.passWord = passWord; }
+
+    public Vector<User> getFollowers() { return followers; }
+
+    public Vector<User> getFollowing() { return following; }
 
     public boolean follow(User other) {
         if (!following.contains(other)) {
@@ -80,4 +83,5 @@ public class User {
     public Vector<PM> getPmMessagesAwaiting() {
         return pmMessagesAwaiting;
     }
+
 }

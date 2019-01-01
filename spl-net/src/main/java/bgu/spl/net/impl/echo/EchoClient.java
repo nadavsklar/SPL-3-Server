@@ -1,8 +1,12 @@
 package bgu.spl.net.impl.echo;
 
+import bgu.spl.net.api.MessageEncoderDecoder;
 import bgu.spl.net.api.MessageEncoderDecoderImpl;
-import bgu.spl.net.api.Messages.Message;
 import bgu.spl.net.api.Messages.ClientToServer.Register;
+import bgu.spl.net.api.Messages.Message;
+import bgu.spl.net.api.bidi.BidiMessagingProtocol;
+import bgu.spl.net.api.bidi.BidiMessagingProtocolImpl;
+import bgu.spl.net.srv.Server;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -10,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
+import java.util.function.Supplier;
 
 public class EchoClient {
 

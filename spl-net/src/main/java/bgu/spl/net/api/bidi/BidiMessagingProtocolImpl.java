@@ -58,7 +58,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
 
     private void doLogout() {
         User user = Users.getUser(connectionId);
-        if(user == null || !Users.isLoggedIn(user.getUserName())){
+        if(user == null || !user.isConnected() || !Users.isLoggedIn(user.getUserName())){
             //Error
             Error errorMessage = new Error((short)3);
             connections.send(connectionId, errorMessage);
@@ -137,7 +137,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
 
     private void doFollowOrUnfollow(Follow message){
         User user = Users.getUser(connectionId);
-        if (user == null || !Users.isLoggedIn(user.getUserName())) {
+        if (user == null || !user.isConnected() || !Users.isLoggedIn(user.getUserName())) {
             Error errorMessage = new Error((short)4);
             connections.send(connectionId, errorMessage);
         }
@@ -190,7 +190,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
         String userNameToSend = message.getUserName();
         String content = message.getContent();
         User currentUser = Users.getUser(connectionId);
-        if (currentUser == null || !Users.isLoggedIn(currentUser.getUserName()) || !Users.isRegistered(userNameToSend)) {
+        if (currentUser == null || !currentUser.isConnected() ||!Users.isLoggedIn(currentUser.getUserName()) || !Users.isRegistered(userNameToSend)) {
             //Error
             Error errorMessage = new Error((short)6);
             connections.send(connectionId, errorMessage);
@@ -215,7 +215,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
 
     private void doPost(Post message) {
         User currentUser = Users.getUser(connectionId);
-        if(currentUser == null || !Users.isLoggedIn(currentUser.getUserName())){
+        if(currentUser == null || !currentUser.isConnected() || !Users.isLoggedIn(currentUser.getUserName())){
             Error errorMessage = new Error((short)5);
             connections.send(connectionId, errorMessage);
         }
@@ -263,7 +263,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
     private void doStat(Stat message) {
         User currentUser = Users.getUser(connectionId);
         String userNameToStat = message.getUserName();
-        if (currentUser == null || !Users.isLoggedIn(currentUser.getUserName()) || !Users.isRegistered(userNameToStat)) {
+        if (currentUser == null || !currentUser.isConnected() ||!Users.isLoggedIn(currentUser.getUserName()) || !Users.isRegistered(userNameToStat)) {
             //Error
             Error errorMessage = new Error((short)8);
             connections.send(connectionId, errorMessage);
@@ -283,7 +283,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
 
     private void doUserList() {
         User currentUser = Users.getUser(connectionId);
-        if (currentUser == null || !Users.isLoggedIn(currentUser.getUserName())) {
+        if (currentUser == null || !currentUser.isConnected() ||!Users.isLoggedIn(currentUser.getUserName())) {
             //Error
             Error errorMessage = new Error((short)7);
             connections.send(connectionId, errorMessage);

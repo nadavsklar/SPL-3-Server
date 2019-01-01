@@ -14,17 +14,21 @@ public class Users {
     private static Vector<User> connectedUsers = new Vector<>();
 
     public static void connect(Integer connectionId){
-        usersConnections.put(connectionId, null);
+        User user = new User(false, "", "");
+        usersConnections.put(connectionId, user);
     }
 
     public static void register(String userName, String password){
-        registeredUsers.add(new User(userName, password));
+        User user = new User(true, userName, password);
+        registeredUsers.add(user);
     }
 
     public static void login(Integer connectionId, String userName, String password){
-        User user = new User(userName, password);
+        User user = usersConnections.get(connectionId);
+        user.setConnected(true);
+        user.setUserName(userName);
+        user.setPassWord(password);
         connectedUsers.add(user);
-        usersConnections.replace(connectionId, user);
     }
 
     public static void logout(Integer connectionId, User user) {
