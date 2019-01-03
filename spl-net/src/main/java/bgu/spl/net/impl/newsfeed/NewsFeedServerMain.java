@@ -14,7 +14,7 @@ import java.util.function.Supplier;
 public class NewsFeedServerMain {
 
     public static void main(String[] args) {
-        NewsFeed feed = new NewsFeed(); //one shared object
+        //NewsFeed feed = new NewsFeed(); //one shared object
 
         Supplier<BidiMessagingProtocol<Message>> protSupplier = new Supplier<BidiMessagingProtocol<Message>>() {
             @Override

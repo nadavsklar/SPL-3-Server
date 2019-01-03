@@ -42,6 +42,7 @@ public abstract class BaseServer<T> implements Server<T> {
             while (!Thread.currentThread().isInterrupted()) {
 
                 Socket clientSock = serverSock.accept();
+                System.out.println("client has conntected! ");
                 BidiMessagingProtocol protocol = protocolFactory.get();
                 MessageEncoderDecoder med = encdecFactory.get();
                 protocol.start(connectionId, connections);

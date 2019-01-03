@@ -19,7 +19,7 @@ import java.util.function.Supplier;
 public class EchoClient {
 
     public static void main(String[] args) throws IOException {
-        //Trying to commit
+        /*//Trying to commit
         MessageEncoderDecoderImpl x = new MessageEncoderDecoderImpl();
         String userName = "Tomer";
         String password = "1234";
@@ -51,7 +51,7 @@ public class EchoClient {
                     System.out.println(r.getPassword());
                 }
             }
-        }
+        }*/
 
 
         if (args.length == 0) {
