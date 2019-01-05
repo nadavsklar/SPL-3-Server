@@ -28,7 +28,7 @@ public class NewsFeedServerMain {
                 return new MessageEncoderDecoderImpl();
             }
         };
-        Server<Message> Server = bgu.spl.net.srv.Server.threadPerClient(7777, protSupplier, medSupplier);
+        Server<Message> Server = bgu.spl.net.srv.Server.reactor(10,7777, protSupplier, medSupplier);
         Server.serve();
 
 // you can use any server... 

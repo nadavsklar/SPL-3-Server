@@ -8,4 +8,7 @@ public class Logout extends Message {
 
     @Override
     public String messageString() { return "Logout"; }
+
+    @Override
+    public String toString() { return "Logout"; }
 }

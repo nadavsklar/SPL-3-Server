@@ -153,9 +153,7 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
         }
     }
 
-    private void logoutRead(Logout message){
-        message.setReaded();
-    }
+    private void logoutRead(Logout message){ message.setReaded(); }
 
     private void userListRead(UserList message){
         message.setReaded();
@@ -290,7 +288,7 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
         byte[] postingUser = null, content = null;
         try {
            postingUser = message.getPostingUser().getBytes(encoding);
-           content = message.getContetnt().getBytes(encoding);
+           content = message.getContent().getBytes(encoding);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }

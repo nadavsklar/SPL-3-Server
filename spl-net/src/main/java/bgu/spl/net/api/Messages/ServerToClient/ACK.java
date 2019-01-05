@@ -9,5 +9,8 @@ public class ACK extends ACKOrError {
     @Override
     public String messageString() {return "ACK";}
 
+    @Override
+    public String toString() {return "ACK";}
+
 
 }

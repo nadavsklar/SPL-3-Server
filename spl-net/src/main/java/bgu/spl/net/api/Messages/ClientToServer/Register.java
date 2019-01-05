@@ -10,5 +10,5 @@ public class Register extends RegisterOrLogin {
     public String messageString() { return "Register"; }
 
     @Override
-    public String toString() { return "Username: " + this.getUserName() + ", Password: " + this.getPassword(); }
+    public String toString() { return "Register = Username: " + this.getUserName() + ", Password: " + this.getPassword(); }
 }

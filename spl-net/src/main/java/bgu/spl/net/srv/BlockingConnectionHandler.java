@@ -28,7 +28,6 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
     @Override
     public void run() {
         try (Socket sock = this.sock) { //just for automatic closing
-            System.out.println("bolbol akabolbol");
             int read;
 
             in = new BufferedInputStream(sock.getInputStream());
@@ -36,8 +35,6 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
 
             while (!protocol.shouldTerminate() && connected && (read = in.read()) >= 0) {
                 T nextMessage = encdec.decodeNextByte((byte) read);
-                System.out.println(read);
-                System.out.println(nextMessage);
                 if (nextMessage != null) {
                     System.out.println(nextMessage.toString());
                     System.out.println("sending message");

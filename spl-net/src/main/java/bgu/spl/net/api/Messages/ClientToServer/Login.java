@@ -8,4 +8,7 @@ public class Login extends RegisterOrLogin {
 
     @Override
     public String messageString() { return "Login"; }
+
+    @Override
+    public String toString() { return "Login = Username: " + this.getUserName() + ", Password: " + this.getPassword(); }
 }

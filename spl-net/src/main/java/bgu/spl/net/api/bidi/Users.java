@@ -9,31 +9,51 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Users {
 
-    private static ConcurrentHashMap<Integer, User> usersConnections = new ConcurrentHashMap<>();
-    private static Vector<User> registeredUsers = new Vector<>();
-    private static Vector<User> connectedUsers = new Vector<>();
+    public static ConcurrentHashMap<Integer, User> usersConnections = new ConcurrentHashMap<>();
+    public static Vector<User> registeredUsers = new Vector<>();
+    public static Vector<User> connectedUsers = new Vector<>();
 
     public static void connect(Integer connectionId){
+        printData();
         User user = new User(false, "", "");
         usersConnections.put(connectionId, user);
     }
 
-    public static void register(String userName, String password){
-        User user = new User(true, userName, password);
-        registeredUsers.add(user);
+    public static boolean register(String userName, String password){
+        synchronized (registeredUsers) {
+            printData();
+            if (!isRegistered(userName)) {
+                User user = new User(true, userName, password);
+                registeredUsers.add(user);
+                return true;
+            }
+            return false;
+        }
     }
 
-    public static void login(Integer connectionId, String userName, String password){
-        User user = usersConnections.get(connectionId);
-        user.setConnected(true);
-        user.setUserName(userName);
-        user.setPassWord(password);
-        connectedUsers.add(user);
+    public static boolean login(Integer connectionId, String userName, String password){
+        printData();
+        if(usersConnections.containsKey(connectionId) && isRegistered(userName) && !isLoggedIn(userName) && isPasswordMatched(userName, password)) {
+            User user = usersConnections.get(connectionId);
+            user.setConnected(true);
+            user.setUserName(userName);
+            user.setPassWord(password);
+            usersConnections.replace(connectionId, user);
+            connectedUsers.add(user);
+            return true;
+        }
+        return false;
     }
 
-    public static void logout(Integer connectionId, User user) {
-        connectedUsers.remove(user);
-        usersConnections.remove(connectionId);
+    public static boolean logout(Integer connectionId, User user) {
+        clearSpamUsers();
+        printData();
+        if(user != null && user.isConnected() && isLoggedIn(user.getUserName())){
+            connectedUsers.remove(user);
+            usersConnections.remove(connectionId);
+            return true;
+        }
+        return false;
     }
 
     public static Integer getConnectionIdByUser(String userName) {
@@ -47,15 +67,21 @@ public class Users {
     }
 
     public static User getUser(Integer connectionId){
-        return usersConnections.get(connectionId);
+        synchronized (usersConnections) {
+            if (usersConnections.containsKey(connectionId))
+                return usersConnections.get(connectionId);
+            return null;
+        }
     }
 
     public static User getUser(String userName){
-        for (int i = 0; i < registeredUsers.size(); i++) {
-            if (registeredUsers.get(i).getUserName().equals(userName))
-                return registeredUsers.get(i);
+        synchronized (registeredUsers) {
+            for (int i = 0; i < registeredUsers.size(); i++) {
+                if (registeredUsers.get(i).getUserName().equals(userName))
+                    return registeredUsers.get(i);
+            }
+            return null;
         }
-        return null;
     }
 
     public static boolean isRegistered(String userName){
@@ -80,6 +106,30 @@ public class Users {
             }
         }
         return false;
+    }
+
+    public static void printData(){
+        System.out.println("Users in the System: ");
+        for(int i = 0; i < registeredUsers.size(); i++){
+            User currentUser = registeredUsers.get(i);
+            System.out.println("Name = " + currentUser.getUserName() + ", Password = " + currentUser.getPassWord());
+        }
+
+        System.out.println("Users connected: ");
+        Iterator it = usersConnections.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry)it.next();
+            System.out.println("Connection Id = " + pair.getKey()+ ", Name = " + ((User)pair.getValue()).getUserName() + ", Password = " + ((User)pair.getValue()).getPassWord());
+        }
+    }
+
+    public static void clearSpamUsers(){
+        Iterator it = usersConnections.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry)it.next();
+            if(((User)pair.getValue()).getUserName() == "" && (((User) pair.getValue()).getPassWord() == ""))
+                usersConnections.remove(pair.getKey());
+        }
     }
 
     public static Vector<User> getRegisteredUsers() { return registeredUsers; }

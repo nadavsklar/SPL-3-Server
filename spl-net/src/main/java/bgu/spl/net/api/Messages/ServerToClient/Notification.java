@@ -6,12 +6,12 @@ public class Notification extends Message {
 
     private char publicOrPrivate; // 1 - post, 0 - pm
     private String postingUser;
-    private String contetnt;
+    private String content;
 
     public Notification() {
         super((short) 9,0);
         publicOrPrivate = 'B';
-        postingUser = contetnt = null;
+        postingUser = content = null;
     }
 
 
@@ -31,12 +31,12 @@ public class Notification extends Message {
         this.postingUser = postingUser;
     }
 
-    public String getContetnt() {
-        return contetnt;
+    public String getContent() {
+        return content;
     }
 
-    public void setContetnt(String contetnt) {
-        this.contetnt = contetnt;
+    public void setContent(String content) {
+        this.content = content;
     }
 
     @Override

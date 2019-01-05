@@ -27,7 +27,6 @@ public class User {
 
     public boolean isConnected() { return isConnected; }
 
-
     public void setConnected(boolean connected) { isConnected = connected; }
 
     public String getUserName() { return userName; }
@@ -43,7 +42,7 @@ public class User {
     public Vector<User> getFollowing() { return following; }
 
     public boolean follow(User other) {
-        if (!following.contains(other)) {
+        if (Users.isRegistered(other.userName) && !following.contains(other)) {
             following.add(other);
             other.getFollowers().add(this);
             return true;
@@ -52,7 +51,7 @@ public class User {
     }
 
     public boolean unfollow(User other) {
-        if (following.contains(other)) {
+        if (Users.isRegistered(other.userName) && following.contains(other)) {
             following.remove(other);
             other.getFollowers().remove(this);
             return true;
@@ -68,9 +67,7 @@ public class User {
         this.postMessagesAwaiting.add(message);
     }
 
-    public void removeAwaitingPM(PM message) {
-        this.pmMessagesAwaiting.remove(message);
-    }
+    public void removeAwaitingPM(PM message) { this.pmMessagesAwaiting.remove(message); }
 
     public void removeAwaitingPost(Post message) {
         this.postMessagesAwaiting.remove(message);
@@ -83,5 +80,7 @@ public class User {
     public Vector<PM> getPmMessagesAwaiting() {
         return pmMessagesAwaiting;
     }
+
+    public boolean isPopular() {return followers.size() > following.size();}
 
 }

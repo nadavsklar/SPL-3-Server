@@ -9,4 +9,7 @@ public class Error extends ACKOrError {
     @Override
     public String messageString() {return "Error";}
 
+    @Override
+    public String toString() {return "Error";}
+
 }

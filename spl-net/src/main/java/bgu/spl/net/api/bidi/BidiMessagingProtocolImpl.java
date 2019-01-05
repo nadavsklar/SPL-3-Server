@@ -4,7 +4,6 @@ import bgu.spl.net.api.Messages.ClientToServer.*;
 import bgu.spl.net.api.Messages.Message;
 import bgu.spl.net.api.Messages.ServerToClient.*;
 import bgu.spl.net.api.Messages.ServerToClient.Error;
-import com.sun.net.httpserver.Authenticator;
 import javafx.util.Pair;
 
 import java.util.LinkedList;
@@ -58,7 +57,8 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
 
     private void doLogout() {
         User user = Users.getUser(connectionId);
-        if(user == null || !user.isConnected() || !Users.isLoggedIn(user.getUserName())){
+        boolean success = Users.logout(connectionId, user);
+        if(!success){
             //Error
             Error errorMessage = new Error((short)3);
             connections.send(connectionId, errorMessage);
@@ -66,7 +66,6 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
         else {
             //Success
             ACK ackMessage = new ACK((short)3);
-            Users.logout(connectionId, user);
             connections.send(connectionId, ackMessage);
             connections.disconnect(connectionId);
             shouldTerminate = true;
@@ -77,7 +76,8 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
         String userNameTyped = message.getUserName();
         String passwordTyped = message.getPassword();
 
-        if(!Users.isRegistered(userNameTyped) || Users.isLoggedIn(userNameTyped) || !Users.isPasswordMatched(userNameTyped, passwordTyped)){
+        boolean success = Users.login(connectionId, userNameTyped, passwordTyped);
+        if(!success){
             //Error
             Error errorMessage = new Error((short)2);
             connections.send(connectionId, errorMessage);
@@ -85,33 +85,38 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
         else{
             //Success
             ACK ackMessage = new ACK((short)2);
-            Users.login(connectionId, userNameTyped, passwordTyped);
             connections.send(connectionId, ackMessage);
 
             User currentUser = Users.getUser(connectionId);
             Vector<Post> awaitingPosts = currentUser.getPostMessagesAwaiting();
             Vector<PM> awaitingPMs = currentUser.getPmMessagesAwaiting();
 
-            for (int i = 0; i < awaitingPosts.size(); i++) {
-                Post currentPost = awaitingPosts.get(i);
-                String sender = Messages.getSender(currentPost);
-                String content = currentPost.getContent();
-                Notification notificationMessage = new Notification();
-                notificationMessage.setContetnt(content);
-                notificationMessage.setPostingUser(sender);
-                notificationMessage.setPublicOrPrivate('1');
-                connections.send(connectionId, notificationMessage);
+            synchronized (awaitingPosts) {
+                for (int i = 0; i < awaitingPosts.size(); i++) {
+                    Post currentPost = awaitingPosts.get(i);
+                    String sender = Messages.getSender(currentPost);
+                    String content = currentPost.getContent();
+                    Notification notificationMessage = new Notification();
+                    notificationMessage.setContent(content);
+                    notificationMessage.setPostingUser(sender);
+                    notificationMessage.setPublicOrPrivate('1');
+                    connections.send(connectionId, notificationMessage);
+                    currentUser.removeAwaitingPost(currentPost);
+                }
             }
 
-            for (int i = 0; i < awaitingPMs.size(); i++) {
-                PM currentPM = awaitingPMs.get(i);
-                String sender = currentPM.getUserName();
-                String content = currentPM.getContent();
-                Notification notificationMessage = new Notification();
-                notificationMessage.setContetnt(content);
-                notificationMessage.setPostingUser(sender);
-                notificationMessage.setPublicOrPrivate('0');
-                connections.send(connectionId, notificationMessage);
+            synchronized (awaitingPMs) {
+                for (int i = 0; i < awaitingPMs.size(); i++) {
+                    PM currentPM = awaitingPMs.get(i);
+                    String sender = currentPM.getUserName();
+                    String content = currentPM.getContent();
+                    Notification notificationMessage = new Notification();
+                    notificationMessage.setContent(content);
+                    notificationMessage.setPostingUser(sender);
+                    notificationMessage.setPublicOrPrivate('0');
+                    connections.send(connectionId, notificationMessage);
+                    currentUser.removeAwaitingPM(currentPM);
+                }
             }
         }
 
@@ -122,7 +127,8 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
         String userNameTyped = futureUser.getKey();
         String passwordTyped = futureUser.getValue();
 
-        if(Users.isRegistered(userNameTyped)){
+        boolean success = Users.register(userNameTyped, passwordTyped);
+        if(!success){
             //Error
             Error errorMessage = new Error((short)1);
             connections.send(connectionId, errorMessage);
@@ -130,7 +136,6 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
         else{
             //Success
             ACK ackMessage = new ACK((short)1);
-            Users.register(userNameTyped, passwordTyped);
             connections.send(connectionId, ackMessage);
         }
     }
@@ -201,7 +206,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                 Notification notificationMessage = new Notification();
                 notificationMessage.setPublicOrPrivate('0');
                 notificationMessage.setPostingUser(currentUser.getUserName());
-                notificationMessage.setContetnt(content);
+                notificationMessage.setContent(content);
                 Messages.addPM(message);
                 connections.send(otherConnectionId, notificationMessage);
             }
@@ -250,7 +255,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                 else {
                     Notification notificationMessage = new Notification();
                     notificationMessage.setPublicOrPrivate('1');
-                    notificationMessage.setContetnt(content);
+                    notificationMessage.setContent(content);
                     notificationMessage.setPostingUser(currentUser.getUserName());
                     Messages.addPost(message, currentUser.getUserName());
                     connections.send(otherConnectionId, notificationMessage);
