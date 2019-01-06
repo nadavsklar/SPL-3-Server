@@ -44,6 +44,7 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
                         break;
                     case 3:
                         currentMessage = new Logout();
+                        logoutRead((Logout)currentMessage);
                         break;
                     case 4:
                         currentMessage = new Follow();
@@ -56,6 +57,7 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
                         break;
                     case 7:
                         currentMessage = new UserList();
+                        userListRead((UserList)currentMessage);
                         break;
                     case 8:
                         currentMessage = new Stat();
