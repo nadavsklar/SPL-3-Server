@@ -250,7 +250,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                     possibleName = possibleName + copyContent.charAt(currentIndex);
                     currentIndex++;
                 }
-                if(Users.isRegistered(possibleName))
+                if(Users.isRegistered(possibleName) && !usersToSend.contains(possibleName))
                     usersToSend.add(possibleName);
                 if(currentIndex != copyContent.length())
                     copyContent = copyContent.substring(currentIndex+1);
