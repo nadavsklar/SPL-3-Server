@@ -135,12 +135,11 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
             message.setFollowOrUnfollow(nextByte);
         else {
             if (message.getNumOfUsers() == 0) {
+                bytes.add(nextByte);
                 if (bytes.size() == 2) {
                     byte[] tmpBytes = getBytesArray();
                     message.setNumOfUsers(bytesToShort(tmpBytes));
                 }
-                else
-                    bytes.add(nextByte);
             }
             else {
                 if (nextByte == '\0') {
@@ -266,7 +265,7 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
         //Init
         List<String> users = message.getUserNameList();
         for (int i = 0; i < users.size(); i++)
-            userNameListString = users.get(i) + '\0';
+            userNameListString += users.get(i) + '\0';
         try {
             userNameList = userNameListString.getBytes(encoding);
         } catch (UnsupportedEncodingException e) {
