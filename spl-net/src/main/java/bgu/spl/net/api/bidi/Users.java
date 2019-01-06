@@ -32,21 +32,23 @@ public class Users {
     }
 
     public static boolean login(Integer connectionId, String userName, String password){
-        printData();
-        User user = null;
-        if(usersConnections.containsKey(connectionId) && isRegistered(userName) && !isLoggedIn(userName) && !isLoggedIn(getUser(connectionId).getUserName()) && isPasswordMatched(userName, password)) {
-            for(int i = 0; i < registeredUsers.size(); i++){
-                if(registeredUsers.get(i).getUserName().equals(userName) && registeredUsers.get(i).getPassWord().equals(password))
-                    user = registeredUsers.get(i);
+        synchronized (connectedUsers) {
+            printData();
+            User user = null;
+            if (usersConnections.containsKey(connectionId) && isRegistered(userName) && !isLoggedIn(userName) && !isLoggedIn(getUser(connectionId).getUserName()) && isPasswordMatched(userName, password)) {
+                for (int i = 0; i < registeredUsers.size(); i++) {
+                    if (registeredUsers.get(i).getUserName().equals(userName) && registeredUsers.get(i).getPassWord().equals(password))
+                        user = registeredUsers.get(i);
+                }
+                user.setConnected(true);
+                user.setUserName(userName);
+                user.setPassWord(password);
+                usersConnections.replace(connectionId, user);
+                connectedUsers.add(user);
+                return true;
             }
-            user.setConnected(true);
-            user.setUserName(userName);
-            user.setPassWord(password);
-            usersConnections.replace(connectionId, user);
-            connectedUsers.add(user);
-            return true;
+            return false;
         }
-        return false;
     }
 
     public static boolean logout(Integer connectionId, User user) {
