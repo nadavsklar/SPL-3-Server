@@ -224,6 +224,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
             ACK ackMessage = new ACK((short)6);
             connections.send(connectionId, ackMessage);
         }
+        Messages.printData();
     }
 
     private void doPost(Post message) {
@@ -276,7 +277,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
             ACK ackMessage = new ACK((short)5);
             connections.send(connectionId, ackMessage);
         }
-
+        Messages.printData();
     }
 
     private void doStat(Stat message) {
