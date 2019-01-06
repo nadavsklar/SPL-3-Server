@@ -155,15 +155,20 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                 succeedVector = doFollow(user, userNameList);
             else
                 succeedVector = doUnfollow(user, userNameList);
+            if(succeedVector.isEmpty()){
+                Error errorMessage = new Error((short)4);
+                connections.send(connectionId, errorMessage);
+            }
+            else{
+                List<String> userNames = new LinkedList<>();
+                for (int i = 0; i < succeedVector.size(); i++)
+                    userNames.add(succeedVector.get(i).getUserName());
 
-            List<String> userNames = new LinkedList<>();
-            for (int i = 0; i < succeedVector.size(); i++)
-                userNames.add(succeedVector.get(i).getUserName());
-
-            FollowACK ackMessage = new FollowACK();
-            ackMessage.setNumOfUsers((short)userNames.size());
-            ackMessage.setUserNameList(userNames);
-            connections.send(connectionId, ackMessage);
+                FollowACK ackMessage = new FollowACK();
+                ackMessage.setNumOfUsers((short) userNames.size());
+                ackMessage.setUserNameList(userNames);
+                connections.send(connectionId, ackMessage);
+            }
         }
     }
 
@@ -172,8 +177,8 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
         for (int i = 0; i < toFollow.size(); i++) {
             User currentUserToFollow = Users.getUser(toFollow.get(i));
             if (currentUserToFollow != null) {
-                user.follow(currentUserToFollow);
-                succeedFollows.add(currentUserToFollow);
+                if(user.follow(currentUserToFollow))
+                    succeedFollows.add(currentUserToFollow);
             }
         }
         return succeedFollows;
@@ -184,8 +189,8 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
         for (int i = 0; i < toUnfollow.size(); i++) {
             User currentUserToUnfollow = Users.getUser(toUnfollow.get(i));
             if (currentUserToUnfollow != null) {
-                user.unfollow(currentUserToUnfollow);
-                succeedUnfollows.add(currentUserToUnfollow);
+                if(user.unfollow(currentUserToUnfollow))
+                    succeedUnfollows.add(currentUserToUnfollow);
             }
         }
         return succeedUnfollows;
@@ -215,6 +220,8 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                 otherUser.addAwaitingPM(message);
                 Messages.addPM(message);
             }
+            ACK ackMessage = new ACK((short)6);
+            connections.send(connectionId, ackMessage);
         }
     }
 
@@ -243,7 +250,10 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                 }
                 if(Users.isRegistered(possibleName))
                     usersToSend.add(possibleName);
-                copyContent = copyContent.substring(currentIndex+1);
+                if(currentIndex != copyContent.length())
+                    copyContent = copyContent.substring(currentIndex+1);
+                else
+                    break;
             }
             for(int i = 0; i < usersToSend.size(); i++){
                 int otherConnectionId = Users.getConnectionIdByUser(usersToSend.get(i));
@@ -261,6 +271,8 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                     connections.send(otherConnectionId, notificationMessage);
                 }
             }
+            ACK ackMessage = new ACK((short)5);
+            connections.send(connectionId, ackMessage);
         }
 
     }

@@ -33,8 +33,13 @@ public class Users {
 
     public static boolean login(Integer connectionId, String userName, String password){
         printData();
+        User user = null;
         if(usersConnections.containsKey(connectionId) && isRegistered(userName) && !isLoggedIn(userName) && isPasswordMatched(userName, password)) {
-            User user = usersConnections.get(connectionId);
+            for(int i = 0; i < registeredUsers.size(); i++){
+                if(registeredUsers.get(i).getUserName().equals(userName) &&
+                    registeredUsers.get(i).getPassWord().equals(password))
+                    user = registeredUsers.get(i);
+            }
             user.setConnected(true);
             user.setUserName(userName);
             user.setPassWord(password);

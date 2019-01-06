@@ -9,11 +9,13 @@ public class Follow extends Message {
 
     private byte followOrUnfollow; // 0 - follow, 1 - unfollow
     private short numOfUsers;
+    private short currentNumOfUsers;
     private List<String> userNameList;
 
     public Follow() {
         super((short) 4,0);
         numOfUsers = 0;
+        currentNumOfUsers = 0;
         userNameList = new LinkedList<>();
         followOrUnfollow = -1;
     }
@@ -34,6 +36,10 @@ public class Follow extends Message {
         this.numOfUsers = numOfUsers;
     }
 
+    public short getCurrentNumOfUsers() { return currentNumOfUsers; }
+
+    public void increaseNumOfUsers() { this.currentNumOfUsers++; }
+
     public List<String> getUserNameList() {
         return userNameList;
     }
@@ -44,4 +50,9 @@ public class Follow extends Message {
 
     @Override
     public String messageString() { return "Follow"; }
+
+
+    public void setUserNameList(List<String> userNameList) {
+        this.userNameList = userNameList;
+    }
 }

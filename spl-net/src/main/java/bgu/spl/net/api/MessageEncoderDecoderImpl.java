@@ -144,7 +144,10 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
                 if (nextByte == '\0') {
                     byte[] tmpBytes = getBytesArray();
                     message.addUser(new String(tmpBytes));
-                    message.setReaded();
+                    message.increaseNumOfUsers();
+                    if(message.getNumOfUsers() == message.getCurrentNumOfUsers())
+                        message.setReaded();
+                    bytes.clear();
                 }
                 else {
                     bytes.add(nextByte);
@@ -348,7 +351,7 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
         String userNameListString = "";
         List<String> users = message.getUserNameList();
         for (int i = 0; i < users.size(); i++)
-            userNameListString = users.get(i) + '\0';
+            userNameListString += users.get(i) + '\0';
         try {
             userNameList = userNameListString.getBytes(encoding);
         } catch (UnsupportedEncodingException e) {
