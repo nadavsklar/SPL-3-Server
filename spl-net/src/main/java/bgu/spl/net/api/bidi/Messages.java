@@ -37,6 +37,23 @@ public class Messages {
 
     public static String getSender(PM message) { return  pmMessages.get(message); }
 
+    public static void printData(){
+        System.out.println("Post Messages: ");
+        Iterator it1 = postMessages.entrySet().iterator();
+        while (it1.hasNext()) {
+            Map.Entry pair = (Map.Entry)it1.next();
+            System.out.println("Content = " + ((Post)pair.getKey()).getContent() + ", Sender = " + pair.getValue());
+        }
+
+        System.out.println("PM Messages: ");
+        Iterator it2 = pmMessages.entrySet().iterator();
+        while (it2.hasNext()) {
+            Map.Entry pair = (Map.Entry)it2.next();
+            System.out.println("Content = " + ((PM)pair.getKey()).getContent() + ", Sender = " + pair.getValue());
+        }
+
+    }
+
 
 
 }

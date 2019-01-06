@@ -206,19 +206,20 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
             connections.send(connectionId, errorMessage);
         }
         else {
-            int otherConnectionId = Users.getConnectionIdByUser(userNameToSend);
-            if (otherConnectionId != -1 && Users.isLoggedIn(userNameToSend)) { // connected
-                Notification notificationMessage = new Notification();
-                notificationMessage.setPublicOrPrivate('0');
-                notificationMessage.setPostingUser(currentUser.getUserName());
-                notificationMessage.setContent(content);
-                Messages.addPM(message, currentUser.getUserName());
-                connections.send(otherConnectionId, notificationMessage);
-            }
-            else { // off
-                User otherUser = Users.getUser(userNameToSend);
-                otherUser.addAwaitingPM(message);
-                Messages.addPM(message, currentUser.getUserName());
+            synchronized (Users.connectedUsers) {
+                int otherConnectionId = Users.getConnectionIdByUser(userNameToSend);
+                if (otherConnectionId != -1 && Users.isLoggedIn(userNameToSend)) { // connected
+                    Notification notificationMessage = new Notification();
+                    notificationMessage.setPublicOrPrivate('0');
+                    notificationMessage.setPostingUser(currentUser.getUserName());
+                    notificationMessage.setContent(content);
+                    Messages.addPM(message, currentUser.getUserName());
+                    connections.send(otherConnectionId, notificationMessage);
+                } else { // off
+                    User otherUser = Users.getUser(userNameToSend);
+                    otherUser.addAwaitingPM(message);
+                    Messages.addPM(message, currentUser.getUserName());
+                }
             }
             ACK ackMessage = new ACK((short)6);
             connections.send(connectionId, ackMessage);
@@ -255,20 +256,21 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                 else
                     break;
             }
-            for(int i = 0; i < usersToSend.size(); i++){
-                int otherConnectionId = Users.getConnectionIdByUser(usersToSend.get(i));
-                if(otherConnectionId == -1){
-                    User otherUser = Users.getUser(usersToSend.get(i));
-                    otherUser.addAwaitingPost(message);
-                    Messages.addPost(message, currentUser.getUserName());
-                }
-                else {
-                    Notification notificationMessage = new Notification();
-                    notificationMessage.setPublicOrPrivate('1');
-                    notificationMessage.setContent(content);
-                    notificationMessage.setPostingUser(currentUser.getUserName());
-                    Messages.addPost(message, currentUser.getUserName());
-                    connections.send(otherConnectionId, notificationMessage);
+            synchronized (Users.connectedUsers) {
+                for (int i = 0; i < usersToSend.size(); i++) {
+                    int otherConnectionId = Users.getConnectionIdByUser(usersToSend.get(i));
+                    if (otherConnectionId == -1) {
+                        User otherUser = Users.getUser(usersToSend.get(i));
+                        otherUser.addAwaitingPost(message);
+                        Messages.addPost(message, currentUser.getUserName());
+                    } else {
+                        Notification notificationMessage = new Notification();
+                        notificationMessage.setPublicOrPrivate('1');
+                        notificationMessage.setContent(content);
+                        notificationMessage.setPostingUser(currentUser.getUserName());
+                        Messages.addPost(message, currentUser.getUserName());
+                        connections.send(otherConnectionId, notificationMessage);
+                    }
                 }
             }
             ACK ackMessage = new ACK((short)5);
