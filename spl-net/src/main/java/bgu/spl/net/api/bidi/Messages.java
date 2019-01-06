@@ -12,14 +12,14 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Messages {
 
     private static ConcurrentHashMap<Post, String> postMessages = new ConcurrentHashMap<>();
-    private static Vector<PM> pmMessages = new Vector<>();
+    private static ConcurrentHashMap<PM, String> pmMessages = new ConcurrentHashMap<>();
 
-    public static void addPost(Post message, String userName) {
-        postMessages.put(message, userName);
+    public static void addPost(Post message, String postingUser) {
+        postMessages.put(message, postingUser);
     }
 
-    public static void addPM(PM message) {
-        pmMessages.add(message);
+    public static void addPM(PM message, String postingUser) {
+        pmMessages.put(message, postingUser);
     }
 
     public static short getNumOfPosts(String userName) {
@@ -34,4 +34,9 @@ public class Messages {
     }
 
     public static String getSender(Post message) { return postMessages.get(message); }
+
+    public static String getSender(PM message) { return  pmMessages.get(message); }
+
+
+
 }

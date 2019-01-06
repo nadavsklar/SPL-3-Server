@@ -108,7 +108,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
             synchronized (awaitingPMs) {
                 for (int i = 0; i < awaitingPMs.size(); i++) {
                     PM currentPM = awaitingPMs.get(i);
-                    String sender = currentPM.getUserName();
+                    String sender = Messages.getSender(currentPM);
                     String content = currentPM.getContent();
                     Notification notificationMessage = new Notification();
                     notificationMessage.setContent(content);
@@ -212,13 +212,13 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                 notificationMessage.setPublicOrPrivate('0');
                 notificationMessage.setPostingUser(currentUser.getUserName());
                 notificationMessage.setContent(content);
-                Messages.addPM(message);
+                Messages.addPM(message, currentUser.getUserName());
                 connections.send(otherConnectionId, notificationMessage);
             }
             else { // off
                 User otherUser = Users.getUser(userNameToSend);
                 otherUser.addAwaitingPM(message);
-                Messages.addPM(message);
+                Messages.addPM(message, currentUser.getUserName());
             }
             ACK ackMessage = new ACK((short)6);
             connections.send(connectionId, ackMessage);
