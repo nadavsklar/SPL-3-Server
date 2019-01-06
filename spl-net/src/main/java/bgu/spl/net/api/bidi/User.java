@@ -73,6 +73,10 @@ public class User {
         this.postMessagesAwaiting.remove(message);
     }
 
+    public void clearAwaitingPM() { this.pmMessagesAwaiting.clear(); }
+
+    public void clearAwaitingPost() { this.postMessagesAwaiting.clear(); }
+
     public Vector<Post> getPostMessagesAwaiting() {
         return postMessagesAwaiting;
     }

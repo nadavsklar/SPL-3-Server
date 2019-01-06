@@ -101,8 +101,8 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                     notificationMessage.setPostingUser(sender);
                     notificationMessage.setPublicOrPrivate('1');
                     connections.send(connectionId, notificationMessage);
-                    currentUser.removeAwaitingPost(currentPost);
                 }
+                currentUser.clearAwaitingPost();
             }
 
             synchronized (awaitingPMs) {
@@ -115,8 +115,8 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                     notificationMessage.setPostingUser(sender);
                     notificationMessage.setPublicOrPrivate('0');
                     connections.send(connectionId, notificationMessage);
-                    currentUser.removeAwaitingPM(currentPM);
                 }
+                currentUser.clearAwaitingPM();
             }
         }
 
