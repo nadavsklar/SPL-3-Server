@@ -42,7 +42,7 @@ public class User {
     public Vector<User> getFollowing() { return following; }
 
     public boolean follow(User other) {
-        if (Users.isRegistered(other.userName) && !following.contains(other) && other.getUserName() != userName) {
+        if (Users.isRegistered(other.userName) && !following.contains(other) && !other.getUserName().equals(userName)) {
             following.add(other);
             other.getFollowers().add(this);
             return true;
@@ -51,7 +51,7 @@ public class User {
     }
 
     public boolean unfollow(User other) {
-        if (Users.isRegistered(other.userName) && following.contains(other) && other.getUserName() != userName) {
+        if (Users.isRegistered(other.userName) && following.contains(other) && !other.getUserName().equals(userName)) {
             following.remove(other);
             other.getFollowers().remove(this);
             return true;
