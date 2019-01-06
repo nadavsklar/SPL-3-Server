@@ -39,6 +39,7 @@ public class Users {
                 if(registeredUsers.get(i).getUserName().equals(userName) &&
                     registeredUsers.get(i).getPassWord().equals(password))
                     user = registeredUsers.get(i);
+
             }
             user.setConnected(true);
             user.setUserName(userName);
@@ -51,7 +52,6 @@ public class Users {
     }
 
     public static boolean logout(Integer connectionId, User user) {
-        clearSpamUsers();
         printData();
         if(user != null && user.isConnected() && isLoggedIn(user.getUserName())){
             connectedUsers.remove(user);
@@ -128,14 +128,6 @@ public class Users {
         }
     }
 
-    public static void clearSpamUsers(){
-        Iterator it = usersConnections.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry pair = (Map.Entry)it.next();
-            if(((User)pair.getValue()).getUserName() == "" && (((User) pair.getValue()).getPassWord() == ""))
-                usersConnections.remove(pair.getKey());
-        }
-    }
 
     public static Vector<User> getRegisteredUsers() { return registeredUsers; }
 
